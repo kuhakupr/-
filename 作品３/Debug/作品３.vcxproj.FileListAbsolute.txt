@@ -1,2 +1,4 @@
 C:\Users\g19023\source\repos\作品３\Debug\作品３.exe
 C:\Users\g19023\source\repos\作品３\Debug\作品３.pdb
+C:\github\作品３\作品３\Debug\作品３.exe
+C:\github\作品３\作品３\Debug\作品３.pdb
