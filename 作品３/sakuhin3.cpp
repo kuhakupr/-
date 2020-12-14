@@ -1,7 +1,7 @@
 
 //########## ヘッダーファイル読み込み ##########
 #include "DxLib.h"
-#include "作品３.h"
+#include "resouce.h"
 
 //########## マクロ定義 ##########
 #define GAME_WIDTH			800	//画面の横の大きさ
@@ -1012,22 +1012,22 @@ VOID MY_IBENTO_PROC(VOID)
 	for (int num = 0; num < IMAGE_BACK_NUM; num++)
 	{
 		//画像を移動させる
-		ImageBack[num].image.y++;
+		ImageBack[num].image.x++;
 
 		//背景画像を描画できないとき
 		if (ImageBack[num].IsDraw == FALSE)
 		{
 			//背景画像が画面内にいるとき
-			if (ImageBack[num].image.y + ImageBack[num].image.height > 0)
+			if (ImageBack[num].image.x + ImageBack[num].image.width > 0)
 			{
 				ImageBack[num].IsDraw = TRUE;	//画像を描画する
 			}
 		}
 
 		//背景画像が画面を通り越したとき
-		if (ImageBack[num].image.y > GAME_HEIGHT)
+		if (ImageBack[num].image.x > GAME_WIDTH)
 		{
-			ImageBack[num].image.y = 0 - ImageBack[0].image.height * 3;	//画像の高さ２つ分、上に移動させる
+			ImageBack[num].image.x = 0 - ImageBack[0].image.width* 4;	//画像の高さ２つ分、上に移動させる
 			ImageBack[num].IsDraw = FALSE;								//画像を描画しない
 		}
 	}
@@ -1183,8 +1183,7 @@ VOID MY_END_PROC(VOID)
 //エンド画面の描画
 VOID MY_END_DRAW(VOID)
 {
-	MY_PLAY_DRAW();	//プレイ画面を描画
-
+	
 	//ゲームの終了状態により、描画を変える
 	switch (GameEndKind)
 	{
@@ -1310,23 +1309,23 @@ BOOL MY_LOAD_IMAGE(VOID)
 		GetGraphSize(ImageBack[num].image.handle, &ImageBack[num].image.width, &ImageBack[num].image.height);
 	}
 	//背景画像①の設定
-	ImageBack[0].image.x = GAME_WIDTH / 2 - ImageBack[0].image.width / 2;	//左右中央揃え
-	ImageBack[0].image.y = 0 - ImageBack[0].image.height * 0;				//yは原点から
+	ImageBack[0].image.y = GAME_WIDTH / 2 - ImageBack[0].image.width / 2;	//左右中央揃え
+	ImageBack[0].image.x= 0 - ImageBack[0].image.height * 0;				//yは原点から
 	ImageBack[0].IsDraw = FALSE;
 
 	//背景画像②の設定
-	ImageBack[1].image.x = GAME_WIDTH / 2 - ImageBack[1].image.width / 2;	//左右中央揃え
-	ImageBack[1].image.y = 0 - ImageBack[0].image.height * 1;				//画像の高さ１つ分、上に移動させる
+	ImageBack[1].image.y = GAME_WIDTH / 2 - ImageBack[1].image.width/2 ;	//左右中央揃え
+	ImageBack[1].image.x = 0 - ImageBack[0].image.height * 1;				//画像の高さ１つ分、上に移動させる
 	ImageBack[1].IsDraw = FALSE;
 
 	//背景画像③の設定
-	ImageBack[2].image.x = GAME_WIDTH / 2 - ImageBack[2].image.width / 2;	//左右中央揃え
-	ImageBack[2].image.y = 0 - ImageBack[0].image.height * 2;				//画像の高さ２つ分、上に移動させる
+	ImageBack[2].image.y = GAME_WIDTH / 2 - ImageBack[2].image.width/2;	//左右中央揃え
+	ImageBack[2].image.x = 0 - ImageBack[0].image.height * 2;				//画像の高さ２つ分、上に移動させる
 	ImageBack[2].IsDraw = FALSE;
 
 	//背景画像③の設定
-	ImageBack[3].image.x = GAME_WIDTH / 2 - ImageBack[2].image.width / 2;	//左右中央揃え
-	ImageBack[3].image.y = 0 - ImageBack[0].image.height * 3;				//画像の高さ３つ分、上に移動させる
+	ImageBack[3].image.y = GAME_WIDTH / 2 - ImageBack[2].image.width/2;	//左右中央揃え
+	ImageBack[3].image.x = 0 - ImageBack[0].image.height * 3;				//画像の高さ３つ分、上に移動させる
 	ImageBack[3].IsDraw = FALSE;
 
 	//プレイヤーの画像
