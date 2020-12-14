@@ -1,4 +1,4 @@
 ﻿  sakuhin3.cpp
-C:\github\作品３\作品３\sakuhin3.cpp(1272,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\github\作品３\作品３\sakuhin3.cpp(1288,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品３\作品３\sakuhin3.cpp(1458,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品３\作品３\sakuhin3.cpp(1474,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
   作品３.vcxproj -> C:\github\作品３\作品３\Debug\作品３.exe
