@@ -944,13 +944,6 @@ VOID MY_PLAY_DRAW(VOID)
 					CP++;
 
 					break;
-
-				case 'I':
-
-						DrawString(5,40-50,"Ç”Å[ÇÒ",GetColor(0,0,0));
-					
-						DrawString(5, 40 - 50, "Ç®íÉÇµÇ»Ç¢ÅH", GetColor(0, 0, 0));
-						CP++;
 				
 				default:	// ÇªÇÃëºÇÃï∂éö
 
