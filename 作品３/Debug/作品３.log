@@ -1,3 +1,6 @@
 ﻿  sakuhin3.cpp
-C:\github\作品３\作品３\sakuhin3.cpp(1459,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
-C:\github\作品３\作品３\sakuhin3.cpp(1475,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品３\作品３\sakuhin3.cpp(945,42): warning C4805: '==': 演算中の 'BOOL' 型と 'bool' 型の混用は安全ではありません
+C:\github\作品３\作品３\sakuhin3.cpp(949,46): warning C4805: '==': 演算中の 'BOOL' 型と 'bool' 型の混用は安全ではありません
+C:\github\作品３\作品３\sakuhin3.cpp(1462,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+C:\github\作品３\作品３\sakuhin3.cpp(1478,21): warning C4244: '=': 'double' から 'int' への変換です。データが失われる可能性があります。
+  作品３.vcxproj -> C:\github\作品３\作品３\Debug\作品３.exe

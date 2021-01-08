@@ -272,21 +272,16 @@ int Count;							// フレームカウンタ
 
 char String[][256] =
 {
-	"　ゲームプログラムを習得するための一番の近道はとにかく沢山プログラムを組む",
-	"ことである。B" ,
-	"@　プログラムの参考書にはゲームのプログラムの方法なんて何も書かれていない、B",
-	"変数、配列、関数、ループ、条件分岐…これらすべての説明はゲームで何に使うか",
-	"なんてどこにも書いていない、Bせいぜい住所録を題材にした例がある程度である。B" ,
-	"@　プログラムは習うより慣れろなのでプログラムを組むに当たって少しでも知識が",
-	"つけば後はそこからは掘り下げ、広げていけば良いわけで、Bプログラムの参考書を",
-	"読んでいて少しでも何か出来るような気がしたらそこでとにかくプログラム",
-	"を打ってみることが大事である。",
-	"C テスト　あなたの性別はB",
-	"@",
-	"I おとこ 2",
-	"@ おんな  3",
-	"@  どちらですか。"
-	"ありがとうE",
+	"　あなたのことおしえてくれるかしら。B",
+	"@ なぜ？" ,
+	"@なぜ？って貴方のことが気に入ったからよ、B",
+	"それいがいあるなにがあるのよ。B",
+	"テスト",
+	"@ あなたの性別は?",
+	"@ おとこ 2",
+	"@ おんな  3I",
+	"@ どちらですか。"
+	
 };
 
 //音楽関連
@@ -788,8 +783,8 @@ VOID MY_START_PROC(VOID)
 		PlaySoundMem(BGM_TITLE.handle, DX_PLAYTYPE_LOOP);
 	}
 
-	//エンターキーを押したら、プレイシーンへ移動する
-	if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+	//スペースキーを押したら、プレイシーンへ移動する
+	if (MY_KEY_DOWN(KEY_INPUT_SPACE) == TRUE)
 	{
 		//BGMが流れているなら
 		if (CheckSoundMem(BGM_TITLE.handle) != 0)
@@ -842,7 +837,7 @@ VOID MY_START_DRAW(VOID)
 		DrawGraph(ImageTitleSTART.image.x, ImageTitleSTART.image.y, ImageTitleSTART.image.handle, TRUE);
 	}
 
-	DrawString(0, 0, "スタート画面(エンターキーを押して下さい)", GetColor(255, 255, 255));
+	DrawString(0, 0, "スタート画面(スペースキーを押して下さい)", GetColor(255, 255, 255));
 	return;
 }
 
@@ -873,7 +868,7 @@ VOID MY_PLAY_DRAW(VOID)
 	int i, j;
 
 	// ループ
-	while (ProcessMessage() == 0 && CheckHitKey(KEY_INPUT_1) == 0)
+	while (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_1) == 0)
 	{
 
 
@@ -886,7 +881,7 @@ VOID MY_PLAY_DRAW(VOID)
 			// ボタン押し待ちフラグがたっていた場合はボタンが押されるまでここで終了
 			if (KeyWaitFlag == 1)
 			{
-				if (ProcessMessage() == 0 && CheckHitKeyAll() != 0)
+				if (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_RETURN) != 0)
 				{
 					// ボタンが押されていたら解除
 					KeyWaitFlag = 0;
@@ -909,7 +904,7 @@ VOID MY_PLAY_DRAW(VOID)
 				case 'B':	// ボタン押し待ち文字
 
 					// ボタンが離されるまで待つ
-					while (ProcessMessage() == 0 && CheckHitKeyAll() != 0) {}
+					while (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_RETURN) != 0) {}
 
 					// ボタン押し待ちフラグをたてる
 					KeyWaitFlag = 1;
@@ -944,7 +939,22 @@ VOID MY_PLAY_DRAW(VOID)
 					CP++;
 
 					break;
-				
+				case 'I':
+					while (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_RETURN) != 0) {}
+
+					if (MY_KEY_DOWN(KEY_INPUT_2) == true)
+					{
+						printfDx("ありがとう");
+					}
+					else if (MY_KEY_DOWN(KEY_INPUT_3) ==true)
+					{
+						printfDx("今度遊びにいかない？");
+					}
+					KeyWaitFlag = 1;
+
+					CP++;
+					break;
+
 				default:	// その他の文字
 
 					// １文字分抜き出す
