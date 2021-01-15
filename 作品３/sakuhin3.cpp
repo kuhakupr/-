@@ -26,7 +26,7 @@
 #define FONT_TANU_NAME			TEXT("たぬき油性マジック")			//フォントの名前
 
 // 文字のサイズ
-#define MOJI_SIZE 24
+#define MOJI_SIZE 15
 
 // 仮想テキストバッファの横サイズ縦サイズ
 #define STRBUF_WIDTH	24
@@ -277,10 +277,10 @@ char String[][256] =
 	"@なぜ？って貴方のことが気に入ったからよ、B",
 	"それいがいあるなにがあるのよ。B",
 	"テスト",
-	"@ あなたの性別は?",
-	"@ おとこ 2",
-	"@ おんな  3I",
-	"@ どちらですか。"
+	"@ あなたの性別は?  ",
+	"@ おとこ  2",
+	"@ おんな  3",
+	"@ どちらですか。  I"
 	
 };
 
@@ -868,7 +868,7 @@ VOID MY_PLAY_DRAW(VOID)
 	int i, j;
 
 	// ループ
-	while (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_1) == 0)
+	while (ProcessMessage==0&&CheckHitKey(KEY_INPUT_1) !=0)
 	{
 
 
@@ -881,7 +881,7 @@ VOID MY_PLAY_DRAW(VOID)
 			// ボタン押し待ちフラグがたっていた場合はボタンが押されるまでここで終了
 			if (KeyWaitFlag == 1)
 			{
-				if (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_RETURN) != 0)
+				if (ProcessMessage == 0 && CheckHitKey(KEY_INPUT_RETURN) != 0)
 				{
 					// ボタンが押されていたら解除
 					KeyWaitFlag = 0;
@@ -904,15 +904,15 @@ VOID MY_PLAY_DRAW(VOID)
 				case 'B':	// ボタン押し待ち文字
 
 					// ボタンが離されるまで待つ
-					while (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_RETURN) != 0) {}
+					while (ProcessMessage == 0 && CheckHitKey(KEY_INPUT_RETURN) != 0) {}
 
 					// ボタン押し待ちフラグをたてる
 					KeyWaitFlag = 1;
 					CP++;
 
-					
-						Count++;
-					
+
+					Count++;
+
 					break;
 
 				case 'E':	// 終了文字
@@ -920,7 +920,7 @@ VOID MY_PLAY_DRAW(VOID)
 					// 終了フラグを立てるおよび参照文字位置を一つ進める
 					EndFlag = 1;
 					CP++;
-					
+
 					break;
 
 				case 'C':	// クリア文字
@@ -940,16 +940,17 @@ VOID MY_PLAY_DRAW(VOID)
 
 					break;
 				case 'I':
-					while (ProcessMessage() == 0 && MY_KEY_DOWN(KEY_INPUT_RETURN) != 0) {}
-
-					if (MY_KEY_DOWN(KEY_INPUT_2) == true)
+					while (ProcessMessage == 0 && CheckHitKey(KEY_INPUT_RETURN) != 0) {}
+					
+					if(MY_KEY_DOWN(KEY_INPUT_2)==true)
 					{
 						printfDx("ありがとう");
+
 					}
-					else if (MY_KEY_DOWN(KEY_INPUT_3) ==true)
-					{
-						printfDx("今度遊びにいかない？");
-					}
+				   else if (MY_KEY_DOWN(KEY_INPUT_3)==true)
+						{
+							printfDx("今度遊びにいかない？");
+						}
 					KeyWaitFlag = 1;
 
 					CP++;
@@ -990,16 +991,16 @@ VOID MY_PLAY_DRAW(VOID)
 		// 画面のクリア
 		ClearDrawScreen();
 
-         DrawGraph(Image.x, Image.y, Image.handle, TRUE);
-        DrawGraph(karikyara.x, karikyara.y, karikyara.handle, TRUE);
-   
+		DrawGraph(Image.x, Image.y, Image.handle, TRUE);
+		DrawGraph(karikyara.x, karikyara.y, karikyara.handle, TRUE);
+
 		// テキストバッファの描画
 		for (i = 0; i < STRBUF_HEIGHT; i++)
 		{
 			DrawString(8, i * MOJI_SIZE, StringBuf[i], GetColor(0, 0, 0));
-			
+
 		}
-		
+
 
 		// 裏画面の内容を表画面に反映させる
 		ScreenFlip();
