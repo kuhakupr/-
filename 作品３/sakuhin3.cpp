@@ -943,12 +943,12 @@ VOID MY_PLAY_DRAW(VOID)
 				case 'I':
 					while (ProcessMessage == 0 && CheckHitKey(KEY_INPUT_RETURN) != 0) {}
 					
-					if(MY_KEY_DOWN(KEY_INPUT_2)==true)
+					if(ProcessMessage == 0 && MY_KEY_DOWN(KEY_INPUT_2)!=0)
 					{
 						printfDx("Ç†ÇËÇ™Ç∆Ç§");
 
 					}
-				   else if (MY_KEY_DOWN(KEY_INPUT_3)==true)
+				   else if (ProcessMessage == 0 && MY_KEY_DOWN(KEY_INPUT_3)!=0)
 						{
 							printfDx("ç°ìxóVÇ—Ç…Ç¢Ç©Ç»Ç¢ÅH");
 						}
