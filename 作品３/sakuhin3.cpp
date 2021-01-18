@@ -25,12 +25,13 @@
 #define FONT_TANU_PATH			TEXT(".\\FONT\\TanukiMagic.ttf")	//フォントの場所
 #define FONT_TANU_NAME			TEXT("たぬき油性マジック")			//フォントの名前
 
-// 文字のサイズ
-#define MOJI_SIZE 15
+//文字の描画
+#define STR_DRAW_SIZE	24		//フォントのサイズ
+#define STR_DRAW_ROW_MAX	4	//文字列の最大行
+#define STR_ROW_MAX		30		//文字行の最大値
+#define STR_COL_MAX		255		//文字列の最大値
+#define STR_DRAW_SPEED	1		//文字列の描画速度(何フレームごとに、１文字描画するか？)
 
-// 仮想テキストバッファの横サイズ縦サイズ
-#define STRBUF_WIDTH	24
-#define STRBUF_HEIGHT	20
 
 //エラーメッセージ
 #define FONT_INSTALL_ERR_TITLE	TEXT("フォントインストールエラー")
@@ -263,25 +264,32 @@ IMAGE_BLINK ImageEndFAIL;				//エンドフォールの画像
 
 CHARA player;		//ゲームのキャラ
 
-char StringBuf[STRBUF_HEIGHT][STRBUF_WIDTH * 2 + 1];	// 仮想テキストバッファ
-int CursorX, CursorY;						// 仮想画面上での文字表示カーソルの位置
-int SP, CP;							// 参照する文字列番号と文字列中の文字ポインタ
-int EndFlag;							// 終了フラグ
-int KeyWaitFlag;						// ボタン押し待ちフラグ
-int Count;							// フレームカウンタ
+int DrawPointX, DrawPointY;	// 文字列描画の位置
+int RowPos;					// 文字列の行数
+int ColPos;					// 文字列の列数
+BOOL EndFlag = FALSE;		// 文字列終了フラグ
+char OneMojiBuf[3];			// １文字分一時記憶配列(１文字分＋\0)
+char DrawStringBuf[STR_DRAW_ROW_MAX][STR_COL_MAX];		// 描画する文字列を入れる
+int DefaultFontSize;								// デフォルトのフォントサイズを取得
+RECT rectString = { 0,GAME_HEIGHT - STR_DRAW_SIZE * STR_DRAW_ROW_MAX,GAME_WIDTH,GAME_HEIGHT };	// 文字列描画用エリア
+int DrawSpeedCnt = 0;					//文字の描画速度カウンタ
+int DrawSpeedCntMax = STR_DRAW_SPEED;	//文字の描画速度カウンタMAX
 
-char String[][256] =
+char Story[STR_ROW_MAX][STR_COL_MAX] =
 {
 	"　あなたのことおしえてくれるかしら。B",
 	"@ なぜ？" ,
 	"@なぜ？って貴方のことが気に入ったからよ、B",
 	"それいがいあるなにがあるのよ。B",
 	"テスト",
-	"@ あなたの性別は?  ",
-	"@ おとこ  2",
-	"@ おんな  3",
-	"@ どちらですか。  I",
-	"どうしてだよぉぉぉぉぉorz  E"
+	"@ あなたの性別は?",
+	"@　おとこ 2",
+	"@　おんな 3",
+	"@ どちらですか。　Q",
+	"2Cありがとう　X",
+	"3Cモデルやらない　X",
+	"Xどうしてだよぉぉぉぉぉorz",
+	"E"
 	
 };
 
@@ -326,7 +334,7 @@ VOID MY_FPS_DRAW(VOID);				//FPS値を描画する
 VOID MY_FPS_WAIT(VOID);				//FPS値を計測し、待つ
 
 VOID MY_ALL_KEYDOWN_UPDATE(VOID);	//キーの入力状態を更新する
-BOOL MY_KEY_DOWN(int);				//キーを押しているか、キーコードで判断する
+BOOL MY_KEY_DOWN(int KEY_INPUT_);				//キーを押しているか、キーコードで判断する
 BOOL MY_KEY_UP(int);				//キーを押し上げたか、キーコードで判断する
 BOOL MY_KEYDOWN_KEEP(int, int);		//キーを押し続けているか、キーコードで判断する
 
@@ -365,8 +373,9 @@ VOID MY_DELETE_MUSIC(VOID);		//音楽をまとめて削除する関数
 BOOL MY_CHECK_MAP1_PLAYER_COLL(RECT);	//マップとプレイヤーの当たり判定をする関数
 BOOL MY_CHECK_RECT_COLL(RECT, RECT);	//領域の当たり判定をする関数
 
-void Kaigyou(void);		// テキストバッファの改行処理関数
-
+int Kaigyou(VOID);
+VOID NovelProc(char str[][STR_COL_MAX]);	//小説文字列処理関数（引数で描画する文字列をもらう）
+VOID NovelDraw(VOID);
 
 //########## プログラムで最初に実行される関数 ##########
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -397,26 +406,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	GameScene = GAME_SCENE_START;	//ゲームシーンはスタート画面から
 
-
-	
-
-
-	// 描画位置の初期位置セット
-	CursorX = 0;
-	CursorY = 0;
-
-	// 参照文字位置をセット
-	SP = 0;	// １行目の
-	CP = 0;	// ０文字
-
-
-	// フォントのサイズセット
-	SetFontSize(MOJI_SIZE);
-
-	// フレームカウンタ初期化
-	Count = 0;
-
-	SetDrawScreen(DX_SCREEN_BACK);	//Draw系関数は裏画面に描画
 
 	//プレイヤーの最初の位置を、スタート位置にする
 	//ゴールの位置もついでに検索する
@@ -509,6 +498,37 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	return 0;
 }
+
+//改行関数
+int Kaigyou(VOID)
+{
+	// 描画列を最初に戻す
+	DrawPointX = 0;
+
+	DrawPointY++;	// 描画行位置を一つ下げる
+
+	// もし画面からはみ出るなら文字列をスクロールさせる
+	if (rectString.top + DrawPointY * STR_DRAW_SIZE + STR_DRAW_SIZE > rectString.bottom)
+	{
+		//一番上の行を空にする
+		for (int j = 0; j < STR_COL_MAX; j++) { DrawStringBuf[0][j] = '\0'; }
+
+		//上の行に順番に移動させる
+		for (int i = 1; i < STR_DRAW_ROW_MAX; i++)
+		{
+			strcpy_s(DrawStringBuf[i - 1], DrawStringBuf[i]);
+		}
+
+		//最後の行を空にする
+		for (int j = 0; j < STR_COL_MAX; j++) { DrawStringBuf[STR_DRAW_ROW_MAX - 1][j] = '\0'; }
+
+		// 最終行から描画を開始する
+		DrawPointY = STR_DRAW_ROW_MAX - 1;
+	}
+
+	return 0;
+}
+
 
 //########## FPS値を計測、更新する関数 ##########
 VOID MY_FPS_UPDATE(VOID)
@@ -841,6 +861,38 @@ VOID MY_START_DRAW(VOID)
 	DrawString(0, 0, "スタート画面(スペースキーを押して下さい)", GetColor(255, 255, 255));
 	return;
 }
+//プレイ画面(初期化)
+VOID MY_PLAY_INIT(VOID)
+{
+	// 描画位置の初期位置セット
+	DrawPointX = 0;
+	DrawPointY = 0;
+
+	// 参照文字位置をセット
+	RowPos = 0;	// １行目の
+	ColPos = 0;	// ０文字
+
+	// 終了フラグを倒す
+	EndFlag = FALSE;
+
+	//デフォルトのフォントサイズを取得
+	DefaultFontSize = GetFontSize();
+
+	//文字列を空にする
+	OneMojiBuf[0] = '\0';
+	OneMojiBuf[1] = '\0';
+	OneMojiBuf[2] = '\0';
+
+	for (int i = 0; i < STR_DRAW_ROW_MAX; i++)
+	{
+		for (int j = 0; j < STR_COL_MAX; j++)
+		{
+			DrawStringBuf[i][j] = '\0';
+		}
+	}
+
+	return;
+}
 
 //プレイ画面
 VOID MY_PLAY(VOID)
@@ -860,154 +912,169 @@ VOID MY_PLAY_PROC(VOID)
 		GameScene = GAME_SCENE_IBENTO;
 	}
 
+	if (EndFlag == FALSE)
+	{
+		//小説文字列描画
+		NovelProc(Story);
+	}
+
+}
+//小説文字列処理関数
+//引数で、描画させたい文字列をもらってくる
+VOID NovelProc(char str[][STR_COL_MAX])
+{
+	switch (str[RowPos][ColPos])	//文字を１つ取得
+	{
+	case '@':	// 改行文字
+
+		// 改行処理および参照文字位置を一つ進める
+		Kaigyou();
+		ColPos++;	//次の文字を読み取る
+
+		break;
+
+	case 'B':	// ボタン押し待ち文字
+
+		//ボタンを押されたら、次の文章へ
+		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE) { ColPos++; }
+
+		break;
+
+	case 'Q':	// 質問文字
+
+		//2ボタンを押されたとき
+		if (MY_KEY_DOWN(KEY_INPUT_2) == TRUE)
+		{
+			//最初が2から始まる文章を探す
+			for (int i = 0; i < STR_ROW_MAX; i++)
+			{
+				if (str[i][0] == '2')
+				{
+					RowPos = i;
+					ColPos = 1;
+					break;
+				}
+			}
+		}
+
+		//3ボタンを押されたとき
+		if (MY_KEY_DOWN(KEY_INPUT_3) == TRUE)
+		{
+			//最初が3から始まる文章を探す
+			for (int i = 0; i < STR_ROW_MAX; i++)
+			{
+				if (str[i][0] == '3')
+				{
+					RowPos = i;
+					ColPos = 1;
+					break;
+				}
+			}
+		}
+
+		break;
+
+	case 'X':	// 質問から戻ってくる文字
+
+		//ボタンを押されたら、次の文章へ
+		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE)
+		{
+			//最初がXから始まる文章を探す
+			for (int i = 0; i < STR_ROW_MAX; i++)
+			{
+				if (str[i][0] == 'X')
+				{
+					RowPos = i;
+					ColPos = 1;
+					break;
+				}
+			}
+		}
+
+		break;
+
+	case 'E':	// 終了文字
+
+		// 終了フラグを立てるおよび参照文字位置を一つ進める
+		EndFlag = TRUE;
+		ColPos++;	//次の文字を読み取る
+
+		break;
+
+	case 'C':	// クリア文字
+
+		//描画している文字列を空にする
+		for (int i = 0; i < STR_DRAW_ROW_MAX; i++)
+		{
+			for (int j = 0; j < STR_COL_MAX; j++)
+			{
+				DrawStringBuf[i][j] = '\0';
+			}
+		}
+
+		//文字の位置を初期化
+		DrawPointY = 0;
+		DrawPointX = 0;
+		ColPos++;
+
+		break;
+
+	default:	// その他の文字
+
+		//描画タイミングを計算
+		if (DrawSpeedCnt < DrawSpeedCntMax)
+		{
+			DrawSpeedCnt++;
+		}
+		else
+		{
+			// １文字分抜き出す
+			OneMojiBuf[0] = str[RowPos][ColPos];
+			OneMojiBuf[1] = str[RowPos][ColPos + 1];
+			OneMojiBuf[2] = '\0';
+
+			// 文字列を結合する
+			strcat_s(DrawStringBuf[DrawPointY], OneMojiBuf);
+
+			// 参照文字位置を２バイト進める
+			ColPos += 2;
+
+			// カーソルを一文字分進める
+			DrawPointX++;
+
+			// 画面からはみ出たら改行する
+			if (DrawPointX * STR_DRAW_SIZE + STR_DRAW_SIZE > rectString.right)
+			{
+				Kaigyou();
+			}
+
+			DrawSpeedCnt = 0;
+		}
+
+		break;
+	}
+
+	// 参照文字列の終端まで行っていたら参照文字列を進める
+	if (str[RowPos][ColPos] == '\0')
+	{
+		RowPos++;
+		ColPos = 0;
+	}
+
+	return;
 }
 
 VOID MY_PLAY_DRAW(VOID)
 {
-
-	char OneMojiBuf[3];	// １文字分一時記憶配列
-	int i, j;
-
-	// ループ
-	while (ProcessMessage==0&&CheckHitKey(KEY_INPUT_1) !=0)
-	{
-
-
-		// サウンドノベル風文字列描画処理を行う
-		// ただし終了フラグが１だった場合は処理をしない
-		if (EndFlag == 0)
-		{
-			char  Moji;
-
-			// ボタン押し待ちフラグがたっていた場合はボタンが押されるまでここで終了
-			if (KeyWaitFlag == 1)
-			{
-				if (ProcessMessage == 0 && CheckHitKey(KEY_INPUT_RETURN) != 0)
-				{
-					// ボタンが押されていたら解除
-					KeyWaitFlag = 0;
-				}
-			}
-			else
-			{
-				// 文字の描画
-				Moji = String[SP][CP];
-				switch (Moji)
-				{
-				case '@':	// 改行文字
-
-					// 改行処理および参照文字位置を一つ進める
-					Kaigyou();
-					CP++;
-
-					break;
-
-				case 'B':	// ボタン押し待ち文字
-
-					// ボタンが離されるまで待つ
-					while (ProcessMessage == 0 && CheckHitKey(KEY_INPUT_RETURN) != 0) {}
-
-					// ボタン押し待ちフラグをたてる
-					KeyWaitFlag = 1;
-					CP++;
-
-
-					Count++;
-
-					break;
-
-				case 'E':	// 終了文字
-
-					// 終了フラグを立てるおよび参照文字位置を一つ進める
-					EndFlag = 1;
-					CP++;
-
-					break;
-
-				case 'C':	// クリア文字
-
-					// 仮想テキストバッファを初期化して描画文字位置を初期位置に戻すおよび参照文字位置を一つ進める
-					for (i = 0; i < STRBUF_HEIGHT; i++)
-					{
-						for (j = 0; j < STRBUF_WIDTH * 2; j++)
-						{
-							StringBuf[i][j] = 0;
-						}
-					}
-
-					CursorY = 0;
-					CursorX = 0;
-					CP++;
-
-					break;
-				case 'I':
-					while (ProcessMessage == 0 && CheckHitKey(KEY_INPUT_RETURN) != 0) {}
-					
-					if(ProcessMessage == 0 && MY_KEY_DOWN(KEY_INPUT_2)!=0)
-					{
-						printfDx("ありがとう");
-
-					}
-				   else if (ProcessMessage == 0 && MY_KEY_DOWN(KEY_INPUT_3)!=0)
-						{
-							printfDx("今度遊びにいかない？");
-						}
-					KeyWaitFlag = 1;
-
-					CP++;
-					break;
-
-				default:	// その他の文字
-
-					// １文字分抜き出す
-					OneMojiBuf[0] = String[SP][CP];
-					OneMojiBuf[1] = String[SP][CP + 1];
-					OneMojiBuf[2] = '\0';
-
-					// １文字テキストバッファに代入
-					StringBuf[CursorY][CursorX * 2] = OneMojiBuf[0];
-					StringBuf[CursorY][CursorX * 2 + 1] = OneMojiBuf[1];
-
-					// 参照文字位置を２バイト進める
-					CP += 2;
-
-					// カーソルを一文字分進める
-					CursorX++;
-
-					// テキストバッファ横幅からはみ出たら改行する
-					if (CursorX >= STRBUF_WIDTH) Kaigyou();
-
-					break;
-				}
-
-				// 参照文字列の終端まで行っていたら参照文字列を進める
-				if (String[SP][CP] == '\0')
-				{
-					SP++;
-					CP = 0;
-				}
-			}
-		}
-
-		// 画面のクリア
-		ClearDrawScreen();
-
-		DrawGraph(Image.x, Image.y, Image.handle, TRUE);
+DrawGraph(Image.x, Image.y, Image.handle, TRUE);
 		DrawGraph(karikyara.x, karikyara.y, karikyara.handle, TRUE);
 
-		// テキストバッファの描画
-		for (i = 0; i < STRBUF_HEIGHT; i++)
-		{
-			DrawString(8, i * MOJI_SIZE, StringBuf[i], GetColor(0, 0, 0));
+		//文字列を描画
+		NovelDraw();
 
-		}
+	return;
 
-
-		// 裏画面の内容を表画面に反映させる
-		ScreenFlip();
-	}
-
-
+		
 }
 
 //イベント画面
@@ -1708,29 +1775,30 @@ BOOL MY_CHECK_RECT_COLL(RECT a, RECT b)
 	return FALSE;		//当たっていない
 }
 
-// 改行関数
-void Kaigyou(void)
+//小説文字列描画関数
+VOID NovelDraw(VOID)
 {
-	// 描画行位置を一つ下げる
-	CursorY++;
-
-	// 描画列を最初に戻す
-	CursorX = 0;
-
-	// もしテキストバッファ縦幅からはみ出るならテキストバッファを縦スクロールさせる
-	if (CursorY >= STRBUF_HEIGHT)
+	//文字を描画するときは
+	if (EndFlag == FALSE)
 	{
-		int i, j;
+		//文字を描画する領域を描画(半透明の四角を描画)
+		SetDrawBlendMode(DX_BLENDMODE_ALPHA, 128);	//半透明にして
+		DrawBox(
+			rectString.left,
+			rectString.top,
+			rectString.right,
+			rectString.bottom,
+			GetColor(255, 255, 255),
+			TRUE
+		);	//四角を描いて
+		SetDrawBlendMode(DX_BLENDMODE_NOBLEND, 0);	//元に戻す
 
-		for (i = 1; i < STRBUF_HEIGHT; i++)
+		SetFontSize(STR_DRAW_SIZE);	//ノベルのフォントのサイズセット
+		//文字列を描画
+		for (int cnt = 0; cnt <= DrawPointY; cnt++)
 		{
-			for (j = 0; j < STRBUF_WIDTH * 2; j++)
-			{
-				StringBuf[i - 1][j] = StringBuf[i][j];
-			}
+			DrawString(rectString.left, rectString.top + cnt * STR_DRAW_SIZE, DrawStringBuf[cnt], GetColor(0, 0, 0));
 		}
-
-		// 描画行位置を一つあげる
-		CursorY--;
+		SetFontSize(DefaultFontSize);	//ノベルのフォントをもとに戻す
 	}
 }
