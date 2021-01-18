@@ -277,10 +277,10 @@ int DrawSpeedCntMax = STR_DRAW_SPEED;	//文字の描画速度カウンタMAX
 
 char Story[STR_ROW_MAX][STR_COL_MAX] =
 {
-	"　あなたのことおしえてくれるかしら。B",
+	"　あなたのことおしえてくれるかしら。+",
 	"@ なぜ？" ,
-	"@なぜ？って貴方のことが気に入ったからよ、B",
-	"それいがいあるなにがあるのよ。B",
+	"@なぜ？って貴方のことが気に入ったからよ、+",
+	"それいがいあるなにがあるのよ。+",
 	"テスト",
 	"@ あなたの性別は?",
 	"@　おとこ 2",
@@ -933,7 +933,7 @@ VOID NovelProc(char str[][STR_COL_MAX])
 
 		break;
 
-	case 'B':	// ボタン押し待ち文字
+	case '+':	// ボタン押し待ち文字
 
 		//ボタンを押されたら、次の文章へ
 		if (MY_KEY_DOWN(KEY_INPUT_RETURN) == TRUE) { ColPos++; }
