@@ -46,7 +46,8 @@
 #define IMAGE_PLAY_BACK          TEXT(".\\IMAGE\\haikei1.png")//プレイ背景
 #define KariKyara    TEXT(".\\IMAGE\\icon.png")//仮キャラ
 
-#define IMAGE_TITLE_BK_PATH			TEXT(".\\IMAGE\\title.png")		//タイトル背景の画像
+#define IMAGE_TITLE_BK_PATH			TEXT(".\\IMAGE\\title1.png")		//タイトル背景の画像
+
 
 #define IMAGE_END_COMP_PATH		TEXT(".\\IMAGE\\happy_end2.png")	//エンドコンプ画像
 #define IMAGE_END_COMP_CNT		1			//点滅カウンタ
@@ -294,8 +295,8 @@ char Story[STR_ROW_MAX][STR_COL_MAX] =
 	"@だが、そこらのファンクラブとは格が違う+",
 	"@なぜなら、",
 	"@所属して人数は",
-	"@全校生徒の約8割が所属しているのである",
-	"C どうするべきか+",
+	"@全校生徒の約8割が所属しているのである　+",
+	"C どうするべきか　+",
 	"@  2.　手を差し伸べる",
 	"@  3.　逃げる　Q",
 	"2C　待てゴラァ！！！！！　+",
@@ -1481,13 +1482,40 @@ VOID MY_END_DRAW(VOID)
 
 	case GAME_END_FAIL:
 		//フォールトのとき
-
+         
 		//点滅
 		if (ImageEndFAIL.IsDraw == TRUE)
 		{
 			//フォールトの描画
 			DrawGraph(ImageEndFAIL.image.x, ImageEndFAIL.image.y, ImageEndFAIL.image.handle, TRUE);
+			
 		}
+
+  //      DrawString(100,500,"コンテニューをするならCを押してね",GetColor(255,255,255));
+
+		//if (MY_KEY_DOWN(KEY_INPUT_C)==TRUE)
+		//{
+		//	//BGMが流れているなら
+		//	if (CheckSoundMem(BGM_COMP.handle) != 0)
+		//	{
+		//		StopSoundMem(BGM_COMP.handle);	//BGMを止める
+		//	}
+
+		//	//BGMが流れているなら
+		//	if (CheckSoundMem(BGM_FAIL.handle) != 0)
+		//	{
+		//		StopSoundMem(BGM_FAIL.handle);	//BGMを止める
+		//	}
+
+		//	SetMouseDispFlag(TRUE);		//マウスカーソルを表示
+
+		//	GameEndKind = GAME_END_FAIL;
+
+		//	GameScene = GAME_SCENE_IBENTO;
+
+		//	return;
+		//}
+
 		break;
 
 	}
